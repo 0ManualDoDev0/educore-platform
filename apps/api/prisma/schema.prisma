@@ -30,7 +30,9 @@ model User {
   isActive   Boolean      @default(true)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
-  profile    UserProfile?
+  profile     UserProfile?
+  courses     Course[]     @relation("TeacherCourses")
+  enrollments Enrollment[]
 
   @@map("users")
 }
@@ -46,4 +48,93 @@ model UserProfile {
   user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_profiles")
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ContentType {
+  VIDEO
+  PDF
+  MARKDOWN
+  AUDIO
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  courses   Course[]
+
+  @@map("categories")
+}
+
+model Course {
+  id          String       @id @default(uuid())
+  title       String
+  slug        String       @unique
+  description String?
+  thumbnail   String?
+  price       Float        @default(0)
+  status      CourseStatus @default(DRAFT)
+  teacherId   String
+  categoryId  String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  teacher     User         @relation("TeacherCourses", fields: [teacherId], references: [id])
+  category    Category?    @relation(fields: [categoryId], references: [id])
+  modules     Module[]
+  enrollments Enrollment[]
+
+  @@map("courses")
+}
+
+model Module {
+  id        String   @id @default(uuid())
+  title     String
+  order     Int
+  courseId  String
+  createdAt DateTime @default(now())
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+
+  @@map("modules")
+}
+
+model Lesson {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  videoUrl    String?
+  duration    Int?
+  order       Int
+  contentType ContentType @default(VIDEO)
+  moduleId    String
+  createdAt   DateTime    @default(now())
+  module      Module      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@map("lessons")
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model Enrollment {
+  id        String           @id @default(uuid())
+  userId    String
+  courseId  String
+  status    EnrollmentStatus @default(ACTIVE)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("enrollments")
 }
