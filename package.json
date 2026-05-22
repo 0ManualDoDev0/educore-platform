@@ -1,0 +1,8 @@
+{
+  "name": "educore-platform",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd apps/api && npm install && npm run build",
+    "start": "node apps/api/dist/main.js"
+  }
+}
