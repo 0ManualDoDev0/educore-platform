@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "scripts": {
     "build": "cd apps/api && npm install && npm run build",
-    "start": "node apps/api/dist/main.js"
+    "start": "cd apps/api && node dist/main.js"
   }
 }
