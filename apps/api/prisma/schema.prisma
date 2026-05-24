@@ -30,9 +30,10 @@ model User {
   isActive   Boolean      @default(true)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
-  profile     UserProfile?
-  courses     Course[]     @relation("TeacherCourses")
-  enrollments Enrollment[]
+  profile          UserProfile?
+  courses          Course[]         @relation("TeacherCourses")
+  enrollments      Enrollment[]
+  aiConversations  AiConversation[]
 
   @@map("users")
 }
@@ -137,4 +138,28 @@ model Enrollment {
 
   @@unique([userId, courseId])
   @@map("enrollments")
+}
+
+model AiConversation {
+  id        String      @id @default(uuid())
+  userId    String
+  courseId  String?
+  title     String      @default("Nova conversa")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  AiMessage[]
+
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id             String         @id @default(uuid())
+  conversationId String
+  role           String
+  content        String
+  createdAt      DateTime       @default(now())
+  conversation   AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("ai_messages")
 }
