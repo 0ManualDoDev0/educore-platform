@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 const navItems = [
   { href: '/dashboard', label: 'Início' },
   { href: '/dashboard/cursos', label: 'Meus Cursos' },
+  { href: '/dashboard/ai', label: '🤖 EduTutor IA' },
   { href: '/dashboard/certificados', label: 'Certificados' },
   { href: '/dashboard/perfil', label: 'Perfil' },
 ];
