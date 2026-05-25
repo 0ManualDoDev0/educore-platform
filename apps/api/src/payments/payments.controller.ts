@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Delete, Body, UseGuards, RawBodyRequest, Req, Headers } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { StripeService } from './stripe.service';
+import { MercadoPagoService } from './mercadopago.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -11,6 +12,7 @@ export class PaymentsController {
   constructor(
     private readonly paymentsService: PaymentsService,
     private readonly stripeService: StripeService,
+    private readonly mercadoPagoService: MercadoPagoService,
   ) {}
 
   @Post()
@@ -46,6 +48,18 @@ export class PaymentsController {
       amount: body.amount,
       successUrl: `${process.env.FRONTEND_URL}/dashboard?payment=success`,
       cancelUrl: `${process.env.FRONTEND_URL}/dashboard?payment=cancelled`,
+    });
+  }
+
+  @Post('checkout/mercadopago')
+  @UseGuards(JwtAuthGuard)
+  createMercadoPagoCheckout(@CurrentUser() user: any, @Body() body: { plan: string; amount: number }) {
+    return this.mercadoPagoService.createPreference({
+      userId: user.id,
+      plan: body.plan,
+      amount: body.amount,
+      successUrl: `${process.env.FRONTEND_URL}/dashboard?payment=success`,
+      failureUrl: `${process.env.FRONTEND_URL}/dashboard?payment=cancelled`,
     });
   }
 
