@@ -36,6 +36,7 @@ model User {
   aiConversations  AiConversation[]
   payments         Payment[]
   subscription     Subscription?
+  gamification     Gamification?
 
   @@map("users")
 }
@@ -210,4 +211,42 @@ model Subscription {
   user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
+}
+
+enum BadgeType {
+  FIRST_LOGIN
+  FIRST_COURSE
+  FIRST_LESSON
+  STREAK_7
+  STREAK_30
+  LEVEL_5
+  LEVEL_10
+  CERTIFICATE
+}
+
+model Gamification {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  xp        Int       @default(0)
+  level     Int       @default(1)
+  streak    Int       @default(0)
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badges UserBadge[]
+
+  @@map("gamification")
+}
+
+model UserBadge {
+  id             String       @id @default(uuid())
+  gamificationId String
+  badge          BadgeType
+  earnedAt       DateTime     @default(now())
+  gamification   Gamification @relation(fields: [gamificationId], references: [id], onDelete: Cascade)
+
+  @@unique([gamificationId, badge])
+  @@map("user_badges")
 }
