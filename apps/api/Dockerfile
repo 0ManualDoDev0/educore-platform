@@ -3,14 +3,12 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
-
 COPY prisma ./prisma
+RUN npm ci
 RUN npx prisma generate
-
 COPY . .
-RUN npm run build
+RUN npx tsc -p tsconfig.build.json --incremental false
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
